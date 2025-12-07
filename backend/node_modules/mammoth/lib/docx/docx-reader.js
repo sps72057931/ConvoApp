@@ -1,8 +1,6 @@
 exports.read = read;
 exports._findPartPaths = findPartPaths;
 
-var path = require("path");
-
 var promises = require("../promises");
 var documents = require("../documents");
 var Result = require("../results").Result;
@@ -20,14 +18,20 @@ var commentsReader = require("./comments-reader");
 var Files = require("./files").Files;
 
 
-function read(docxFile, input) {
+function read(docxFile, input, options) {
     input = input || {};
+    options = options || {};
+
+    var files = new Files({
+        externalFileAccess: options.externalFileAccess,
+        relativeToFile: input.path
+    });
 
     return promises.props({
         contentTypes: readContentTypesFromZipFile(docxFile),
         partPaths: findPartPaths(docxFile),
         docxFile: docxFile,
-        files: new Files(input.path ? path.dirname(input.path) : null)
+        files: files
     }).also(function(result) {
         return {
             styles: readStylesFromZipFile(docxFile, result.partPaths.styles)
