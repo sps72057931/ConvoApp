@@ -13,6 +13,7 @@ const port = process.env.PORT || 3000;
 // Configure CORS for production
 const allowedOrigins = [
   process.env.CLIENT_URL,
+  "https://convoapp-frontend-gwye.onrender.com",
   "http://localhost:5173",
   "http://localhost:3000",
 ].filter(Boolean);
@@ -189,7 +190,14 @@ app.post("/convertFile", upload.single("file"), async (req, res) => {
 // ROOT ROUTE - REDIRECT TO FRONTEND
 // ============================================
 app.get("/", (req, res) => {
-  const frontendUrl = process.env.CLIENT_URL || "http://localhost:5173";
+  // Determine frontend URL based on environment
+  const frontendUrl =
+    process.env.CLIENT_URL ||
+    (process.env.NODE_ENV === "production"
+      ? "https://convoapp-frontend-gwye.onrender.com"
+      : "http://localhost:5173");
+
+  console.log("Redirecting to frontend:", frontendUrl);
 
   // Redirect to frontend
   res.redirect(frontendUrl);
@@ -197,15 +205,22 @@ app.get("/", (req, res) => {
 
 // API Status endpoint (optional - for health checks)
 app.get("/api/status", (req, res) => {
+  const frontendUrl =
+    process.env.CLIENT_URL ||
+    (process.env.NODE_ENV === "production"
+      ? "https://convoapp-frontend-gwye.onrender.com"
+      : "http://localhost:5173");
+
   res.json({
     message: "Word to PDF Converter API is running!",
     status: "active",
     environment: process.env.NODE_ENV || "development",
     version: "2.0.0",
-    frontend: process.env.CLIENT_URL || "http://localhost:5173",
+    frontend: frontendUrl,
     endpoints: {
       convert: "/convertFile (POST)",
       status: "/api/status (GET)",
+      root: "/ (GET) - Redirects to frontend",
     },
   });
 });
@@ -230,8 +245,13 @@ app.use((req, res) => {
 app.listen(port, () => {
   console.log(`🚀 Server running on port ${port}`);
   console.log(`🌍 Environment: ${process.env.NODE_ENV || "development"}`);
-  console.log(
-    `🔗 Frontend URL: ${process.env.CLIENT_URL || "http://localhost:5173"}`
-  );
+
+  const frontendUrl =
+    process.env.CLIENT_URL ||
+    (process.env.NODE_ENV === "production"
+      ? "https://convoapp-frontend-gwye.onrender.com"
+      : "http://localhost:5173");
+
+  console.log(`🔗 Frontend URL: ${frontendUrl}`);
   console.log(`📝 API Status: http://localhost:${port}/api/status`);
 });
