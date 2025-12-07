@@ -1,15 +1,16 @@
 import React, { useState } from "react";
 import { FaFileWord } from "react-icons/fa6";
 import axios from "axios";
+
 function Home() {
   const [selectedFile, setSelectedFile] = useState(null);
   const [convert, setConvert] = useState("");
   const [downloadError, setDownloadError] = useState("");
 
   const handleFileChange = (e) => {
-    // console.log(e.target.files[0]);
     setSelectedFile(e.target.files[0]);
   };
+
   const handleSubmit = async (event) => {
     event.preventDefault();
     if (!selectedFile) {
@@ -20,7 +21,7 @@ function Home() {
     formData.append("file", selectedFile);
     try {
       const response = await axios.post(
-        "http://localhost:3000/convertFile",
+        `${import.meta.env.VITE_API_URL}/convertFile`, // ← CHANGED LINE
         formData,
         {
           responseType: "blob",
@@ -48,12 +49,13 @@ function Home() {
     } catch (error) {
       console.log(error);
       if (error.response && error.response.status == 400) {
-        setDownloadError("Error occurred: ", error.response.data.message);
+        setDownloadError("Error occurred: " + error.response.data.message);
       } else {
         setConvert("");
       }
     }
   };
+
   return (
     <>
       <div className="max-w-screen-2xl mx-auto container px-6 py-3 md:px-40">
