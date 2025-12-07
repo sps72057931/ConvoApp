@@ -24,7 +24,7 @@ app.use(
       if (allowedOrigins.indexOf(origin) !== -1) {
         callback(null, true);
       } else {
-        callback(null, true); // Allow all for now
+        callback(null, true);
       }
     },
     credentials: true,
@@ -140,12 +140,10 @@ app.post("/convertFile", upload.single("file"), async (req, res) => {
 
     // Send file to client
     res.download(outputPath, `${fileNameWithoutExt}.pdf`, (downloadErr) => {
-      // Cleanup files after download
       if (downloadErr) {
         console.error("Download error:", downloadErr);
       }
 
-      // Delete uploaded file
       if (inputPath && fs.existsSync(inputPath)) {
         try {
           fs.unlinkSync(inputPath);
@@ -154,7 +152,6 @@ app.post("/convertFile", upload.single("file"), async (req, res) => {
         }
       }
 
-      // Delete converted file
       if (outputPath && fs.existsSync(outputPath)) {
         try {
           fs.unlinkSync(outputPath);
@@ -166,7 +163,6 @@ app.post("/convertFile", upload.single("file"), async (req, res) => {
   } catch (error) {
     console.error("Conversion error:", error);
 
-    // Cleanup on error
     if (inputPath && fs.existsSync(inputPath)) {
       try {
         fs.unlinkSync(inputPath);
@@ -189,12 +185,28 @@ app.post("/convertFile", upload.single("file"), async (req, res) => {
   }
 });
 
-// Health check
+// ============================================
+// ROOT ROUTE - REDIRECT TO FRONTEND
+// ============================================
 app.get("/", (req, res) => {
+  const frontendUrl = process.env.CLIENT_URL || "http://localhost:5173";
+
+  // Redirect to frontend
+  res.redirect(frontendUrl);
+});
+
+// API Status endpoint (optional - for health checks)
+app.get("/api/status", (req, res) => {
   res.json({
     message: "Word to PDF Converter API is running!",
+    status: "active",
     environment: process.env.NODE_ENV || "development",
     version: "2.0.0",
+    frontend: process.env.CLIENT_URL || "http://localhost:5173",
+    endpoints: {
+      convert: "/convertFile (POST)",
+      status: "/api/status (GET)",
+    },
   });
 });
 
@@ -216,7 +228,10 @@ app.use((req, res) => {
 });
 
 app.listen(port, () => {
-  console.log(`Server running on port ${port}`);
-  console.log(`Environment: ${process.env.NODE_ENV || "development"}`);
-  console.log(`Allowed origin: ${process.env.CLIENT_URL || "localhost"}`);
+  console.log(`🚀 Server running on port ${port}`);
+  console.log(`🌍 Environment: ${process.env.NODE_ENV || "development"}`);
+  console.log(
+    `🔗 Frontend URL: ${process.env.CLIENT_URL || "http://localhost:5173"}`
+  );
+  console.log(`📝 API Status: http://localhost:${port}/api/status`);
 });
