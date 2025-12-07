@@ -12,6 +12,8 @@
   "author": "Akhil",
   "license": "ISC",
   "dependencies": {
+    "axios": "^1.13.2",
+    "cloudconvert": "^3.0.0",
     "cors": "^2.8.5",
     "docx-pdf": "^0.0.1",
     "dotenv": "^16.6.1",
