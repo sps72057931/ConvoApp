@@ -17,38 +17,34 @@ function Home() {
       setConvert("Please select a file");
       return;
     }
+
     const formData = new FormData();
     formData.append("file", selectedFile);
+
     try {
       const response = await axios.post(
-        `${import.meta.env.VITE_API_URL}/convertFile`, // ← CHANGED LINE
+        `${import.meta.env.VITE_API_URL}/convertFile`,
         formData,
-        {
-          responseType: "blob",
-        }
+        { responseType: "blob" }
       );
-      console.log(response.data);
+
       const url = window.URL.createObjectURL(new Blob([response.data]));
-      console.log(url);
       const link = document.createElement("a");
-      console.log(link);
       link.href = url;
-      console.log(link);
       link.setAttribute(
         "download",
         selectedFile.name.replace(/\.[^/.]+$/, "") + ".pdf"
       );
-      console.log(link);
       document.body.appendChild(link);
-      console.log(link);
       link.click();
       link.parentNode.removeChild(link);
+
       setSelectedFile(null);
       setDownloadError("");
       setConvert("File Converted Successfully");
     } catch (error) {
       console.log(error);
-      if (error.response && error.response.status == 400) {
+      if (error.response && error.response.status === 400) {
         setDownloadError("Error occurred: " + error.response.data.message);
       } else {
         setConvert("");
@@ -77,6 +73,7 @@ function Home() {
                 className="hidden"
                 id="FileInput"
               />
+
               <label
                 htmlFor="FileInput"
                 className="w-full flex items-center justify-center px-4 py-6 bg-gray-100 text-gray-700 rounded-lg shadow-lg cursor-pointer border-blue-300 hover:bg-blue-700 duration-300 hover:text-white"
@@ -86,6 +83,7 @@ function Home() {
                   {selectedFile ? selectedFile.name : "Choose File"}
                 </span>
               </label>
+
               <button
                 onClick={handleSubmit}
                 disabled={!selectedFile}
@@ -93,6 +91,7 @@ function Home() {
               >
                 Convert File
               </button>
+
               {convert && (
                 <div className="text-green-500 text-center">{convert}</div>
               )}
